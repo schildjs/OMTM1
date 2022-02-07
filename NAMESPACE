@@ -1,0 +1,3 @@
+useDynLib(OMTM1)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
