@@ -109,9 +109,12 @@ summary.omtm <-
         se.mod          = sqrt(diag(mod$vcov))
         se.rob          = sqrt(diag(mod$rob.vcov))
         ind             = mod$no.info
+        l.gamma         = length(mod$gamma)
 
-        for (i in 1:length(ind)){ se.mod = append(se.mod, NA, after=ind[i]-1)
-                                  se.rob = append(se.rob, NA, after=ind[i]-1)
+        if (length(ests) != length(se.mod)){
+            for (i in 1:length(ind)){ se.mod = append(se.mod, 1e8, after=ind[i]-1)
+                                      se.rob = append(se.rob, 1e8, after=ind[i]-1)
+            }
         }
         z.stat.mod = ests/se.mod
         z.stat.rob = ests/se.rob
@@ -126,23 +129,29 @@ summary.omtm <-
         row.names.1 <- c(paste0("Intercept:Y<=", 1:K1), paste0("b_",1:length(mod$beta)))
 
         row.names.2.tmp <- paste0("gamma:", rep(1:(K1+1), each = (K1+1)), 1:(K1+1))
+        if (l.gamma>1){
+            for (LL in 2:l.gamma){
+                row.names.2.tmp <- c(row.names.2.tmp,
+                                     paste0("gamma:", rep(1:(K1+1), each = (K1+1)), 1:(K1+1), paste0(rep("'",LL-1), collapse="")))
+            }
+        }
         row.names.2     <- row.names.2.tmp[-grep(ref.c, row.names.2.tmp)]
 
         row.names(tab.mod) = row.names(tab.rob) = c(row.names.1, row.names.2)
 
         L = length(c(mod$alpha, mod$beta))
-        cs.tab.mod = tab.mod[1:L,]
-        cs.tab.rob = tab.rob[1:L,]
+        cs.tab.mod  = tab.mod[1:L,]
+        cs.tab.rob  = tab.rob[1:L,]
         dep.tab.mod = tab.mod[-c(1:L),]
         dep.tab.rob = tab.rob[-c(1:L),]
 
         if(robust == FALSE){
             out = list(class = class(mod),  control=mod$control,
-                       cs.table = cs.tab.mod, dependence.table = dep.tab.mod)
+                       cs.table = tab.mod[1:L,], dependence.table = tab.mod[-c(1:L),])
         }
         if(robust == TRUE){
             out = list(class = class(mod),  control=mod$control,
-                       cs.table = cs.tab.rob, dependence.table = dep.tab.rob)
+                       cs.table = tab.rob[1:L,], dependence.table = tab.rob[-c(1:L),])
         }
         class(out) <- "summary.omtm"
         return(out)

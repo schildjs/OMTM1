@@ -1,11 +1,12 @@
 Package: OMTM1
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Fits first order marginalized transition models for ordinal data
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Jonathan Schildcrout
+Maintainer: Jonathan Schildcrout <jonathan.schildcrout@vanderbilt.edu>, 
+            Chiara Di Gravio <chiara.di.gravio@vanderbilt.edu>,
+            Shawn Garbett <shawn.garbett@vumc.org>
+Description: This package fits Lee and Daniels (2007) first-order marginalized transition model for ordinal response data.  One is also able to generate data from this package, and is able to construct models for data with absorbing states. <Use four spaces when indenting paragraphs within the Description.>
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
