@@ -1,0 +1,604 @@
+---
+title: "Generating and fitting data from marginalized, proportional odds and partial proportional odds models"
+author: "Jonathan S. Schildcrout"
+date: '`r Sys.Date()`'
+output: 
+  html_document:
+    thumbnails: true
+    use_bookdown: true
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    collapsed: false
+    code_folding: hide
+    theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE, cache=FALSE, warning = FALSE}
+#library(Rcpp)
+library(knitr)      
+library(kableExtra)
+library(OMTM1)
+library(viridis)
+col.vir=viridis(9)
+lo = function(x) log(mean(x)/(1-mean(x)))
+plot.states.lo = function(data, the.subgroup, Yvar, timevar, the.title){
+    
+    data$State = as.numeric(data[,Yvar])
+    dat1       = subset(data, subset=eval(parse(text=paste(the.subgroup))))
+    dat1$t     = dat1[,timevar]
+    lid        = length(unique(dat1$id))
+    
+    l1 = tapply(dat1$State<=1, dat1$t, lo)
+    l2 = tapply(dat1$State<=2, dat1$t, lo)
+    l3 = tapply(dat1$State<=3, dat1$t, lo)
+    times = sort(unique(dat1$t))
+    plot(times, l1, type="l", ylim=c(-5,5), xlim=c(1,10) , ylab="", xlab="", xaxs="i")
+    lines(times, l1, lwd=2)
+    lines(times, l2, lwd=2)
+    lines(times, l3, lwd=2)
+    
+    polygon(c(times, rev(times)), c(rep(-10, 28), rev(l1)), col=col.vir[3])
+    polygon(c(times, rev(times)), c(l1, rev(l2)), col=col.vir[5])
+    polygon(c(times, rev(times)), c(l2, rev(l3)), col=col.vir[7])
+    polygon(c(times, rev(times)), c(l3, rep(10,28)), col=col.vir[8])
+    
+    mtext(paste(the.title), side=3, line=1)
+    mtext("Cumulative Log-odds", side=2, line=2)
+     mtext(expression(log[10](t[ij])), side=1, line=2.5)
+}
+
+plot.state.lo.overlay = function(data, Yvar, timevar, the.title){
+    
+    data$State = as.numeric(data[,Yvar])
+    data$t     = data[,timevar]
+    
+    dat0       = subset(data, subset=tx==0)
+    lid0       = length(unique(dat0$id))
+    dat1       = subset(data, subset=tx==1)
+    lid1       = length(unique(dat1$id))
+    
+    l1.0 = tapply(dat0$State<=1, dat0$t, lo)
+    l2.0 = tapply(dat0$State<=2, dat0$t, lo)
+    l3.0 = tapply(dat0$State<=3, dat0$t, lo)
+
+    l1.1 = tapply(dat1$State<=1, dat1$t, lo)
+    l2.1 = tapply(dat1$State<=2, dat1$t, lo)
+    l3.1 = tapply(dat1$State<=3, dat1$t, lo)
+    
+    times = sort(unique(dat1$t))
+    
+    plot(times, l1.0, type="l", ylim=c(-5,5), xlim=c(1,10) , ylab="", xlab="", xaxs="i")
+    lines(times, l1.0, lwd=2, col=col.vir[3])
+    lines(times, l2.0, lwd=2, col=col.vir[5])
+    lines(times, l3.0, lwd=2, col=col.vir[8])
+    lines(times, l1.1, lwd=2, lty=2, col=col.vir[3])
+    lines(times, l2.1, lwd=2, lty=2, col=col.vir[5])
+    lines(times, l3.1, lwd=2, lty=2, col=col.vir[8])
+    
+    legend("bottomright", lty=c(1,1,1,1,2), lwd=rep(2,5), col=c(col.vir[3],col.vir[5],col.vir[8],"black","black"),  
+           legend=c(expression(Y[i](t[ij])<=1),
+                    expression(Y[i](t[ij])<=2),
+                    expression(Y[i](t[ij])<=3),
+                    expression(paste(x[i],"=0")),
+                    expression(paste(x[i],"=1"))))
+    mtext(paste(the.title), side=3, line=1)
+    mtext("Cumulative Log-odds", side=2, line=2)
+    mtext(expression(log[10](t[ij])), side=1, line=2.5)
+}
+
+plot.state.lo.diff = function(data, Yvar, timevar, the.title){
+    
+    data$State = as.numeric(data[,Yvar])
+    data$t     = data[,timevar]
+    
+    dat0       = subset(data, subset=tx==0)
+    lid0       = length(unique(dat0$id))
+    dat1       = subset(data, subset=tx==1)
+    lid1       = length(unique(dat1$id))
+    
+    l1.0 = tapply(dat0$State<=1, dat0$t, lo)
+    l2.0 = tapply(dat0$State<=2, dat0$t, lo)
+    l3.0 = tapply(dat0$State<=3, dat0$t, lo)
+
+    l1.1 = tapply(dat1$State<=1, dat1$t, lo)
+    l2.1 = tapply(dat1$State<=2, dat1$t, lo)
+    l3.1 = tapply(dat1$State<=3, dat1$t, lo)
+    
+    times = sort(unique(dat1$t))
+    
+    plot(times,  l1.1-l1.0, type="l", ylim=c(-3,3), xlim=c(1,10) , ylab="", xlab="", xaxs="i")
+    lines(times, l1.1-l1.0, lwd=2, col=col.vir[3])
+    lines(times, l2.1-l2.0, lwd=2, col=col.vir[5])
+    lines(times, l3.1-l3.0, lwd=2, col=col.vir[8])
+    
+    legend("bottomright", lty=c(1,1,1), lwd=rep(2,5), col=c(col.vir[3],col.vir[5],col.vir[8]),  
+           legend=c(expression(Y[i](t[ij])<=1),
+                    expression(Y[i](t[ij])<=2),
+                    expression(Y[i](t[ij])<=3)))
+    mtext(paste(the.title), side=3, line=1)
+    mtext("Difference in cumulative log-odds", side=2, line=2)
+    mtext(expression(log[10](t[ij])), side=1, line=2.5)
+}
+
+
+
+```
+
+
+Generate all of the data. See code here.
+```{r datgen1, cache=TRUE, message=FALSE}
+set.seed(1e6)
+
+N      = 1000
+mi     = 28
+id     = rep(1:N, each=mi)
+tx     = rep(rep(c(0,1), each=mi), N/2)
+t      = rep(seq(1,10,length.out=mi), N)
+log10t = log10(t)
+XMat      = cbind(tx, log10t, tx*log10t)
+XMat.ppo  = XMat[,c(2,2)]
+XMat.ppo5 = XMat[,c(2,2,3,3)]
+
+ppo.k    = c(2,3)
+ppo.k5   = c(2,3,2,3)
+
+alpha     = c(-3,0,2)
+beta      = c(-0.1, 1.5, 0.2)
+beta.ppo  = c(-1, -2)
+beta.ppo5 = c(-1, -2, 0.5, 1)
+
+gamma.mat0 = list()
+gamma.mat0[[1]] = rbind( c(4, 2, 1),
+                         c(2, 4, 2),
+                         c(1, 2, 4))
+
+gamma.mat1 = list()
+gamma.mat1[[1]] = gamma.mat0[[1]]
+
+gamma.mat2 = list()
+gamma.mat2[[1]] = gamma.mat0[[1]]
+gamma.mat2[[2]] = rbind( c(-1,0,0),
+                         c(0,-1,0),
+                         c(0,0,-1))
+
+gamma.mat3 = gamma.mat2
+
+gamma.mat4 = list()
+gamma.mat4[[1]] = rbind( c(25,  2, 1),
+                         c(-25, 4, 2),
+                         c(-25, 2, 4))
+
+gamma.mat5 = list()
+gamma.mat5[[1]] = rbind( c(25,  2, 1),
+                         c(-25, 4, 2),
+                         c(-25, 2, 4))
+
+params.0    = c(alpha, beta,            c(t(gamma.mat0[[1]])))
+params.1    = c(alpha, beta, beta.ppo,  c(t(gamma.mat1[[1]])))
+params.2    = c(alpha, beta,            c(t(gamma.mat2[[1]])), c(t(gamma.mat2[[2]])))
+params.3    = c(alpha, beta, beta.ppo,  c(t(gamma.mat3[[1]])), c(t(gamma.mat3[[2]])))
+params.4    = c(alpha, beta, beta.ppo,  c(t(gamma.mat4[[1]])))
+params.5    = c(alpha, beta, beta.ppo5, c(t(gamma.mat5[[1]])))
+
+# Generating PO model data
+Y.0  = GenDatOMTM1.ppo(id=id, XMat=XMat, alpha=alpha, beta=beta, gamma.mat.list=gamma.mat0,
+                       ppo.k=NULL, XMat.ppo=NULL, beta.ppo=NULL)
+
+# Generating PPO model data.  Non-proportional odds on the association of time among those with tx=0
+Y.1  = GenDatOMTM1.ppo(id=id, XMat=XMat, UMat=NULL, alpha=alpha, beta=beta, gamma.mat.list=gamma.mat1,
+                       ppo.k=ppo.k, XMat.ppo=XMat.ppo, beta.ppo=beta.ppo)
+
+# Generating PO model data.  Dependence model modified by tx
+Y.2  = GenDatOMTM1.ppo(id=id, XMat=XMat, UMat=cbind(1,tx), alpha=alpha, beta=beta, gamma.mat.list=gamma.mat2,
+                       ppo.k=NULL, XMat.ppo=NULL, beta.ppo=NULL)
+
+# Generating PPO model data.  Non-proportional odds on the association of time among those with tx=0.
+# Additionally, dependence model modified by tx
+Y.3  = GenDatOMTM1.ppo(id=id, XMat=XMat, UMat=cbind(1,tx), alpha=alpha, beta=beta, gamma.mat.list=gamma.mat3,
+                       ppo.k=ppo.k, XMat.ppo=XMat.ppo, beta.ppo=beta.ppo)
+
+# Generating PPO model data.  Non-proportional odds on the association of time among those with tx=0
+# Additionally Y=1 is an absorbing state
+Y.4  = GenDatOMTM1.ppo(id=id, XMat=XMat, alpha=alpha, beta=beta, gamma.mat=gamma.mat4,
+                       ppo.k=ppo.k, XMat.ppo=XMat.ppo, beta.ppo=beta.ppo)
+
+# Generating PPO model data.  Non-proportional odds on the association of time among those with tx=0
+# Non-proportional odds on the tx by time interaction.
+# Additionally Y=1 is an absorbing state
+Y.5  = GenDatOMTM1.ppo(id=id, XMat=XMat, alpha=alpha, beta=beta, gamma.mat=gamma.mat5,
+                       ppo.k=ppo.k5, XMat.ppo=XMat.ppo5, beta.ppo=beta.ppo5)
+```
+
+Fit all of the data. See code here
+```{r models, cache=TRUE, message=FALSE}
+
+## PO
+mod.0        = omtm1(params = params.0,  yval=Y.0, XMat=XMat, id=id,
+                     ppo.k=NULL, x.ppo=NULL, stepmax=0.5)
+
+## PO, but change reference
+mod.0a     <- omtm1(params = params.0, yval = Y.0, XMat=XMat, id=id, ref.muc = 3,
+                    ppo.k = NULL, x.ppo = NULL, stepmax = 1.5)
+
+## PPO with non-PO on effect of time
+mod.1        = omtm1(params = params.1,  yval=Y.1, XMat=XMat, id=id,
+                     ppo.k=ppo.k, x.ppo=XMat.ppo, stepmax=.5)
+
+## PO, with dependence modified by tx
+mod.2        = omtm1(params = params.2,  yval=Y.2, XMat=XMat, id=id, u=cbind(1,tx),
+                     ppo.k=NULL, x.ppo=NULL, stepmax=.5)
+
+## PPO with non-PO on effect of time and with dependence modified by tx
+mod.3        = omtm1(params = params.3,  yval=Y.3, XMat=XMat, id=id, u=cbind(1,tx),
+                     ppo.k=ppo.k, x.ppo=XMat.ppo, stepmax=.5)
+
+## PPO with non-PO on effect of time and with state 1 being absorbing
+mod.4     <- omtm1(params = params.4, yval = Y.4, XMat = XMat, id = id,
+                   ppo.k = ppo.k, x.ppo = XMat.ppo, stepmax=.5)
+
+## PPO with non-PO on effect of time and tx*time, with state 1 being absorbing
+mod.5     <- omtm1(params = params.5, yval = Y.5, XMat = XMat, id = id,
+                   ppo.k = ppo.k5, x.ppo = XMat.ppo5, stepmax=.5)
+```
+
+# Marginalized PO model
+
+Let's generate data from the following PO model
+
+$$
+\begin{aligned}
+logit\{\pi_{i,k}(t_{ij})\} &= \alpha_{k,0} + log_{10}(t_{ij}) \beta_t + \underbrace{[\beta_x + log_{10}(t_{ij})\beta_{xt}]}_{\beta_x(t_{ij})}x_i  \\ 
+log \left( \frac{\mu_{i,k}^c(t_{ij})}{\mu_{i,K}^c(t_{ij})} \right) &= \Delta_{i,k}[\boldsymbol{X}_i(t_{ij})] + \sum_{l=1}^{K-1} \gamma^{kl} Y_{i,l}(t_{ij-1})
+\end{aligned}
+$$
+
+where $k \in \{1, 2, 3, 4\}$ and $N=1000$. The treatment indicator $x_i \sim bernoulli(0.5)$, $t_{ij}=j \in \{1, \dots, m_i\}$, $m_i=m=28$, $\boldsymbol{\alpha}=(-3,0,2)$, $\boldsymbol{\beta} = (\beta_x, \beta_t, \beta_{xt})= (-0.1, 1.5, 0.2)$, and $\boldsymbol{\Gamma}=$
+$\left(\begin{smallmatrix}
+  4 &  2 & 1 \\
+  2 & 4 & 2 \\
+  1 & 2 & 4
+\end{smallmatrix}\right)$.
+
+Simulated transition probabilities, joint probabilities, and marginal probabilities across all timepoints
+
+```{r,cache=FALSE}
+Calc.TransProbs(Y.0, id=id, digs=4)
+```
+
+Cumulative log odds over time by treatment arm. Notice here that the proportional odds assumptions on follow-up day and on the treatment effect are satisfied.  
+
+```{r,cache=FALSE, fig.width=10, fig.height=6, echo=FALSE}
+par(mfrow=c(1,3))
+dat = data.frame(id=id, Y.0=Y.0, t=t, tx=tx)
+plot.states.lo(dat, "tx==0", "Y.0", "t", "x=0")
+plot.states.lo(dat, "tx==1", "Y.0", "t", "x=1")
+dat = data.frame(id=id, Y.0=Y.0, t=t, tx=tx)
+plot.state.lo.diff(data=dat, Yvar="Y.0", timevar="t", the.title="")
+```
+
+
+Have a look at the model object itself. We will do that here, but not for other models. For the model-based variance-covariance, notice that cross-sectional model parameter estimates are independent of the dependence model estimates, which is why this OMTM1 is robust to dependence model misspecification.  Under dependence model misspecification estimates of cross-sectional model parameters are consistent, but standard errors are wrong and we need to use robust standard errors.
+
+```{r, cache=FALSE, echo=TRUE}
+names(mod.0)
+```
+
+Maximum Log-likelihood
+```{r, cache=FALSE, echo=TRUE}
+mod.0$loglik
+```
+$\hat{\alpha}$
+```{r, cache=FALSE, echo=TRUE}
+mod.0$alpha
+```
+$\hat{\beta}$
+```{r, cache=FALSE, echo=TRUE}
+mod.0$beta
+```
+$\hat{\Gamma}$
+```{r, cache=FALSE, echo=TRUE}
+mod.0$gamma
+```
+Model-based covariance matrix
+```{r, cache=FALSE, echo=TRUE}
+round(mod.0$vcov,3)
+```
+Robust, sandwich-based covariance matrix
+```{r, cache=FALSE, echo=TRUE}
+round(mod.0$rob.vcov,3)
+```
+
+Cross-sectional model parameter estimates
+```{r, cache=FALSE}
+# summary of the model
+mod.0.sum  <- summary.omtm(mod.0, robust = FALSE)
+kable(mod.0.sum$cs.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+Dependence model parameter estimates
+```{r, cache=FALSE}
+kable(mod.0.sum$dependence.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+## Dependence model reference state changed from 4 to 3
+
+Now, when fitting the data, we change the reference state for the lagged response in the dependence model from 4 to 3. This model is equivalent to the one above, but the estimates of $\boldsymbol{\Gamma}$ will be different since the reference state has changed.
+
+Cross-sectional model parameter estimates.  
+```{r, cache=FALSE}
+# summary of the model
+mod.0a.sum  <- summary.omtm(mod.0a, robust = FALSE)
+kable(mod.0a.sum$cs.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+Dependence model parameter estimates
+```{r, cache=FALSE}
+kable(mod.0a.sum$dependence.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+# Marginalized PPO model: non-PO on the follow-up day association
+
+Let's generate data from the following PO model
+$$
+\begin{aligned}
+logit\{\pi_{i,k}(t_{ij})\} &= \alpha_{k,0} + log_{10}(t_{ij}) [\beta_t+\beta_{t,2}I(Y_i(t_{ij})\leq 2) + \beta_{t,3}I(Y_i(t_{ij})\leq 3)] + \underbrace{[\beta_x + log_{10}(t_{ij}) \beta_{xt}]}_{\beta_{x}(t_{ij})} x_i \\ 
+log \left( \frac{\mu_{i,k}^c(t_{ij})}{\mu_{i,K}^c(t_{ij})} \right) &= \Delta_{i,k}[\boldsymbol{X}_i(t_{ij})] + \sum_{l=1}^{K-1} \gamma^{kl} Y_{i,l}(t_{ij-1})
+\end{aligned}
+$$
+
+where $k \in \{1, 2, 3, 4\}$ and $N=1000$.  The treatment indicators $x_i \sim bernoulli(0.5)$, $t_{ij}=j \in \{1, \dots, m_i\}$, $m_i = m = 28$, $\boldsymbol{\alpha}=(-3,0, 2)$, $\boldsymbol{\beta}=(\beta_x, \beta_t, \beta_{xt})= (-0.1, 1.5, 0.2)$, $(\beta_{t,2}, \beta_{t,3})= (-0.5, -1.0)$ and $\boldsymbol{\Gamma}=$
+$\left(\begin{smallmatrix}
+  4 &  2 & 1 \\
+  2 & 4 & 2 \\
+  1 & 2 & 4
+\end{smallmatrix}\right)$. 
+
+```{r,cache=FALSE}
+Calc.TransProbs(Y.1, id=id, digs=4)
+```
+
+Simulated cumulative log odds over time and treatment effect over time. 
+
+```{r,cache=FALSE, fig.width=10, fig.height=6}
+par(mfrow=c(1,3))
+dat = data.frame(id=id, Y.1=Y.1, t=t, tx=tx)
+plot.states.lo(dat, "tx==0", "Y.1", "t", "x=0")
+plot.states.lo(dat, "tx==1", "Y.1", "t", "x=1")
+dat = data.frame(id=id, Y.1=Y.1, t=t, tx=tx)
+plot.state.lo.diff(data=dat, Yvar="Y.1", timevar="t", the.title="")
+```
+
+
+Cross-sectional model parameter estimates.  
+```{r, cache=FALSE}
+# summary of the model
+mod.1.sum  <- summary.omtm(mod.1, robust = FALSE)
+kable(mod.1.sum$cs.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+Dependence model parameter estimates
+```{r, cache=FALSE}
+kable(mod.1.sum$dependence.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+# Marginalized PO model: Dependence model is modified by the $x_i$
+
+Let's generate data from the following PO model
+
+$$
+\begin{aligned}
+logit\{\pi_{i,k}(t_{ij})\} &= \alpha_{k,0} + log_{10}(t_{ij}) \beta_t + \underbrace{[\beta_x + log_{10}(t_{ij})\beta_{xt}]}_{\beta_x(t_{ij})}x_i  \\ 
+log \left( \frac{\mu_{i,k}^c(t_{ij})}{\mu_{i,K}^c(t_{ij})} \right) &= \Delta_{i,k}[\boldsymbol{X}_i(t_{ij})] + \sum_{l=1}^{K-1} [\gamma^{kl}+\gamma^{kl'}x_i] \cdot Y_{i,l}(t_{ij-1})
+\end{aligned}
+$$
+
+where $k \in \{1, 2, 3, 4\}$ and $N=1000$. The treatment indicator $x_i \sim bernoulli(0.5)$, $t_{ij}=j \in \{1, \dots, m_i\}$, $m_i=m=28$, $\boldsymbol{\alpha}=(-3,0,2)$, $\boldsymbol{\beta} = (\beta_x, \beta_t, \beta_{xt})= (-0.1, 1.5, 0.2)$, $\boldsymbol{\Gamma}=$
+$\left(\begin{smallmatrix}
+  4 &  2 & 1 \\
+  2 & 4 & 2 \\
+  1 & 2 & 4
+\end{smallmatrix}\right)$ and 
+$\boldsymbol{\Gamma'}=$
+$\left(\begin{smallmatrix}
+  -1 &  0 & 0 \\
+  0 & -1 & 0 \\
+  0 & 0 & -1
+\end{smallmatrix}\right)$
+
+
+Simulated transition probabilities, joint probabilities, and marginal probabilities across all timepoints
+
+For $x=0$
+```{r,cache=FALSE}
+Calc.TransProbs(Y.2[tx==0], id=id, digs=4)
+```
+
+For $x=1$
+```{r,cache=FALSE}
+Calc.TransProbs(Y.2[tx==1], id=id, digs=4)
+```
+
+Simulated cumulative log odds over time. 
+
+```{r,cache=FALSE, fig.width=10, fig.height=6}
+par(mfrow=c(1,3))
+dat = data.frame(id=id, Y.2=Y.2, t=t, tx=tx)
+plot.states.lo(dat, "tx==0", "Y.2", "t", "x=0")
+plot.states.lo(dat, "tx==1", "Y.2", "t", "x=1")
+dat = data.frame(id=id, Y.2=Y.2, t=t, tx=tx)
+plot.state.lo.diff(data=dat, Yvar="Y.2", timevar="t", the.title="")
+```
+
+Cross-sectional model parameter estimates
+```{r, cache=FALSE}
+# summary of the model
+mod.2.sum  <- summary.omtm(mod.2, robust = FALSE)
+kable(mod.2.sum$cs.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+Dependence model parameter estimates
+```{r, cache=FALSE}
+kable(mod.2.sum$dependence.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+
+# Marginalized PPO model: non-PO on the study day association and with dependence model modified by $x$.
+
+Let's generate data from the following PO model
+$$
+\begin{aligned}
+logit\{\pi_{i,k}(t_{ij})\} &= \alpha_{k,0} + log_{10}(t_{ij}) [\beta_t+\beta_{t,2}I(Y_i(t_{ij})\leq 2) + \beta_{t,3}I(Y_i(t_{ij})\leq 3)] + \underbrace{[\beta_x + log_{10}(t_{ij}) \beta_{xt}]}_{\beta_{x}(t_{ij})} x_i \\ 
+log \left( \frac{\mu_{i,k}^c(t_{ij})}{\mu_{i,K}^c(t_{ij})} \right) &= \Delta_{i,k}[\boldsymbol{X}_i(t_{ij})] + \sum_{l=1}^{K-1} [\gamma^{kl}+\gamma^{kl'}x_i] \cdot  Y_{i,l}(t_{ij-1})
+\end{aligned}
+$$
+
+where $k \in \{1, 2, 3, 4\}$ and $N=1000$.  The treatment indicators $x_i \sim bernoulli(0.5)$, $t_{ij}=j \in \{1, \dots, m_i\}$, $m_i = m = 28$, $\boldsymbol{\alpha}=(-3,0,2)$, $\boldsymbol{\beta}=(\beta_x, \beta_t, \beta_{xt})= (-0.1, 1.5, 0.2)$, $(\beta_{t,2}, \beta_{t,3})= (-1, -2)$ and $\boldsymbol{\Gamma}=$
+$\left(\begin{smallmatrix}
+  4 &  2 & 1 \\
+  2 & 4 & 2 \\
+  1 & 2 & 4
+\end{smallmatrix}\right)$ and 
+$\boldsymbol{\Gamma'}=$
+$\left(\begin{smallmatrix}
+  -1 &  0 & 0 \\
+  0 & -1 & 0 \\
+  0 & 0 & -1
+\end{smallmatrix}\right)$
+
+```{r,cache=FALSE}
+Calc.TransProbs(Y.3, id=id, digs=4)
+```
+
+Simulated cumulative log odds over time. 
+
+```{r,cache=FALSE, fig.width=10, fig.height=6}
+par(mfrow=c(1,3))
+dat = data.frame(id=id, Y.3=Y.3, t=t, tx=tx)
+plot.states.lo(dat, "tx==0", "Y.3", "t", "x=0")
+plot.states.lo(dat, "tx==1", "Y.3", "t", "x=1")
+dat = data.frame(id=id, Y.3=Y.3, t=t, tx=tx)
+plot.state.lo.diff(data=dat, Yvar="Y.3", timevar="t", the.title="")
+```
+
+Cross-sectional model parameter estimates
+```{r, cache=FALSE}
+# summary of the model
+mod.3.sum  <- summary.omtm(mod.3, robust = FALSE)
+kable(mod.3.sum$cs.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+Dependence model parameter estimates
+```{r, cache=FALSE}
+kable(mod.3.sum$dependence.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+
+# Marginalized PPO model: non-PO on the study day association, and with $y=1$ being an absorbing state
+
+Let's generate data from the following PO model
+$$
+\begin{aligned}
+logit\{\pi_{i,k}(t_{ij})\} &= \alpha_{k,0} + log_{10}(t_{ij}) [\beta_t+\beta_{t,2}I(Y_i(t_{ij})\leq 2) + \beta_{t,3}I(Y_i(t_{ij})\leq 3)] + \underbrace{[\beta_x + log_{10}(t_{ij}) \beta_{xt}]}_{\beta_{x}(t_{ij})} x_i \\ 
+log \left( \frac{\mu_{i,k}^c(t_{ij})}{\mu_{i,K}^c(t_{ij})} \right) &= \Delta_{i,k}[\boldsymbol{X}_i(t_{ij})] + \sum_{l=1}^{K-1} \gamma^{kl} Y_{i,l}(t_{ij-1})
+\end{aligned}
+$$
+
+where $k \in \{1, 2, 3, 4\}$ and $N=1000$.  The treatment indicators $x_i \sim bernoulli(0.5)$, $t_{ij}=j \in \{1, \dots, m_i\}$, $m_i = m = 28$, $\boldsymbol{\alpha}=(-3,0,2)$, $\boldsymbol{\beta}=(\beta_x, \beta_t, \beta_{xt})= (-0.1, 1.5, 0.2)$, $(\beta_{t,2}, \beta_{t,3})= (-1, -2)$ and $\boldsymbol{\Gamma}=$
+$\left(\begin{smallmatrix}
+  25 &  2 & 1 \\
+  -25 & 4 & 2 \\
+  -25 & 2 & 4
+\end{smallmatrix}\right)$. 
+
+Notice that there are no transitions from $Y_{i,l}(t_{ij-1})=1$ to $Y_{i,l}(t_{ij-1})>1$
+```{r,cache=FALSE}
+Calc.TransProbs(Y.4, id=id, digs=4)
+```
+
+Simulated cumulative log odds over time. 
+
+```{r,cache=FALSE, fig.width=10, fig.height=6}
+par(mfrow=c(1,3))
+dat = data.frame(id=id, Y.4=Y.4, t=t, tx=tx)
+plot.states.lo(dat, "tx==0", "Y.4", "t", "x=0")
+plot.states.lo(dat, "tx==1", "Y.4", "t", "x=1")
+dat = data.frame(id=id, Y.4=Y.4, t=t, tx=tx)
+plot.state.lo.diff(data=dat, Yvar="Y.4", timevar="t", the.title="")
+```
+
+Cross-sectional model parameter estimates
+```{r, cache=FALSE}
+# summary of the model
+mod.4.sum  <- summary.omtm(mod.4, robust = FALSE)
+kable(mod.4.sum$cs.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+Dependence model parameter estimates
+```{r, cache=FALSE}
+kable(mod.4.sum$dependence.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+# Marginalized PPO model: with non-PO on the study day association, non-PO on treatment effect, and with State 1 being absorbing
+
+Let's generate data from the following PO model
+$$
+\begin{aligned}
+logit\{\pi_{i,k}(t_{ij})\} &= \alpha_k + log_{10}(t_{ij}) [\beta_t+\beta_{t,2}I(Y_i(t_{ij})\leq 2) +\beta_{t,3}I(Y_i(t_{ij})\leq 3)] + \underbrace{ \{ \beta_x + log_{10}(t_{ij}) [\beta_{xt}+\beta_{xt,2}I(Y_i(t_{ij})\leq 2) +\beta_{xt,3}I(Y_i(t_{ij})\leq 3)]\} }_{\beta_x(t_{ij})} x_i\\ 
+log \left( \frac{\mu_{i,k}^c(t_{ij})}{\mu_{i,K}^c(t_{ij})} \right) &= \Delta_{i,k}[\boldsymbol{X}_i(t_{ij})] + \sum_{l=1}^{K-1} \gamma^{kl} Y_{i,l}(t_{ij-1})
+\end{aligned}
+$$
+
+where $k \in \{1, 2, 3, 4\}$ and $N=1000$.  The treatment indicators $x_i \sim bernoulli(0.5)$, $t_{ij}=j \in \{1, \dots, m_i\}$, $m_i = m = 28$, $\boldsymbol{\alpha}=(-3, 0, 2)$, $\boldsymbol{\beta}=(\beta_x, \beta_t, \beta_{xt})= (-0.1, 1.5, 0.2)$, $(\beta_{t,2}, \beta_{t,3}, \beta_{xt,2}, \beta_{xt,3}) = (-1, -2, 0.5, 1)$ and $\boldsymbol{\Gamma}=$
+$\left(\begin{smallmatrix}
+   25 & 2 & 1 \\
+  -25 & 4 & 2 \\
+  -25 & 2 & 4
+\end{smallmatrix}\right)$.
+
+Notice that there are no transitions from $Y_{i,l}(t_{ij-1})=1$ to $Y_{i,l}(t_{ij-1})>1$
+```{r,cache=FALSE}
+Calc.TransProbs(Y.5, id=id, digs=4)
+```
+
+Simulated cumulative log odds over time. 
+
+```{r,cache=FALSE, fig.width=10, fig.height=6}
+par(mfrow=c(1,3))
+dat = data.frame(id=id, Y.5=Y.5, t=t, tx=tx)
+plot.states.lo(dat, "tx==0", "Y.5", "t", "x=0")
+plot.states.lo(dat, "tx==1", "Y.5", "t", "x=1")
+dat = data.frame(id=id, Y.5=Y.5, t=t, tx=tx)
+plot.state.lo.diff(data=dat, Yvar="Y.5", timevar="t", the.title="")
+```
+Cross-sectional model parameter estimates
+```{r, cache=FALSE}
+# summary of the model
+mod.5.sum  <- summary.omtm(mod.5, robust = FALSE)
+kable(mod.5.sum$cs.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+Dependence model parameter estimates
+```{r, cache=FALSE}
+kable(mod.5.sum$dependence.table, digits = 4) %>% 
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+
