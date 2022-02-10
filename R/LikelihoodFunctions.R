@@ -588,7 +588,7 @@ CalcVarCov = function(MOD, epsilon, yval, x, id, ProfileCol=NA, ref.muc=NA, Tran
     rmv.noInfo = which(diag(ObsInfo)<.01)
 
     ## Model based covariance
-    if (length(rmv.noInfo)>0){ print(rmv.noInfo)
+    if (length(rmv.noInfo)>0){
         mod.cov = solve(ObsInfo[-rmv.noInfo,-rmv.noInfo])
     }else{                     mod.cov = solve(ObsInfo)}
 
