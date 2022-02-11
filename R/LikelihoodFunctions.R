@@ -39,6 +39,14 @@ findDeltait = function(mm,            # row of marginal (mean) probabilities of 
 expit = plogis
 
 ## Transition probability, joint probability and overall state probability
+#' Calculate transition probabilities, joint probabilities and overall state probability
+#' Calculate transition probabilities, joint probabilities and overall state probability
+#' @param Y response variable which should be an integer value
+#' @param id id variables that is the same length as Y
+#' @param digs number of rounding digits
+#' @return transition probabilities, joint probabilities and overall state probability
+#' @export
+#'
 Calc.TransProbs = function(Y, id, digs){
 
     L = length(Y)
