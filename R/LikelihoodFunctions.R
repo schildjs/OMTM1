@@ -455,7 +455,8 @@ LogLikeiCalc = function(subjectData, gamma.mtx, tmp1, tmp2, tmp3a, tmp4, tmp.mat
 
     if (mi>1){
         ## logLi2 calculated from observations 2 to mi
-        YiMat2 = YiMat[,-K]
+        ## Need to save this as a matrix to allow for the binary case
+        YiMat2 = matrix(YiMat[,-K], ncol = K1)
 
         ############ Altered for new ref.muc (reference state in conditional model)
         if (!is.na(ref.muc)){
