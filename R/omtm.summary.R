@@ -1,18 +1,21 @@
 ####################################################################################################
 ##### Create a Function to summarize the OMTM results ##############################################
 ####################################################################################################
-omtm1  <- function(params, yval, XMat, id, ppo.k=NULL, x.ppo=NULL, u=NULL, ref.muc = NA, TransIndMtx=NA,
+omtm1  <- function(params, yval, XMat, id, ppo.k=NULL, x.ppo=NULL, u=NULL,
+                   weight = NULL,
+                   ref.muc = NA, TransIndMtx=NA,
                    stepmax = 0.5, UseGrad=TRUE, iterlim=250, check.analyticals = FALSE,
                    print.level=0, ProfileCol = NA){
 
     # fit the model
-    mod <- nlm(logLikeCalc, p = params, yval = yval,  x = XMat, id = id, UseGrad=UseGrad,
+    mod <- nlm(logLikeCalc, p = params, yval = yval,  x = XMat, wt = weight,
+               id = id, UseGrad=UseGrad,
                ppo.k = ppo.k, x.ppo = x.ppo, u=u, ref.muc = ref.muc, TransIndMtx=TransIndMtx,
                stepmax=stepmax, iterlim=iterlim, check.analyticals = check.analyticals,
                print.level=print.level, ProfileCol = ProfileCol)
 
     # variance and covariance matrix
-    tmp           <- CalcVarCov(MOD = mod, epsilon = 1e-7, yval = yval, x = XMat,
+    tmp           <- CalcVarCov(MOD = mod, epsilon = 1e-7, yval = yval, x = XMat, wt = weight,
                                 id = id, ProfileCol = NA, ref.muc = ref.muc,
                                 ppo.k = ppo.k, x.ppo = x.ppo, u=u, TransIndMtx=TransIndMtx)
 

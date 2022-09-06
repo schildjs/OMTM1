@@ -188,7 +188,7 @@ GenDatOMTM1.ppo = function(id,
 ####################################################################################
 #### Create the list of data that is used in the likelihood fitting
 ####################################################################################
-CreateSubjectData = function(id, yval,x,x.ppo,u,ZMat,YMat,cprob.m,
+CreateSubjectData = function(id, yval,x,x.ppo,u,ZMat,YMat, wt, cprob.m,
                               prob.m,one.min.cprob.m,phi.k, g.phi.k,
                               dphi.k.deta.k,dphi.k.deta.k1,dpi.k.deta.k, K,K1){
 
@@ -198,6 +198,7 @@ CreateSubjectData = function(id, yval,x,x.ppo,u,ZMat,YMat,cprob.m,
     ui.tmp               = split(u,id)
     ZiMat.tmp            = split(ZMat,id)
     YiMat.tmp            = split(YMat,id)
+    wt.tmp               = split(wt,id)
     cprobi.m.tmp         = split(cprob.m,id)
     probi.m.tmp          = split(prob.m,id)
     one.min.cprobi.m.tmp = split(one.min.cprob.m,id)
@@ -232,6 +233,7 @@ CreateSubjectData = function(id, yval,x,x.ppo,u,ZMat,YMat,cprob.m,
                                 ui       = matrix(ui.tmp[[i]],ncol=ncolu),
                                 ZiMat    = matrix(ZiMat.tmp[[i]],ncol=K),
                                 YiMat    = matrix(YiMat.tmp[[i]],ncol=K),
+                                wt       = unique(wt.tmp[[i]]),
                                 cprobi.m = matrix(cprobi.m.tmp[[i]],ncol=K),
                                 probi.m  = matrix(probi.m.tmp[[i]],ncol=K),
                                 one.min.cprobi.m = matrix(one.min.cprobi.m.tmp[[i]],ncol=K),
@@ -251,6 +253,7 @@ logLikeCalc = function(params, ## vector of parameter values.  Gamma is row majo
                         x.ppo=NULL, ## design matrix for non-proportional odds
                         ppo.k=NULL,  ## outcome dichotomizations corresponding to non-PO in the columns of x.ppo
                         u=NULL, ## design matrix for response dependence model (modifiers of the relationship between Y_i(t_{ij}) and Y_i(t_{ij-1})).  The number of rows should equal the length of yval
+                        wt, ## vector of sampling weights
                         id, ## id vector, same length as yval
                         ProfileCol=NA, ## column value to fix.  This is particularly important when we have absorbing states and need transition matrix probabilities to be 1 or 0
                         ref.muc=NA, ## The reference values for the lagged response value in the transition matrix.  I believe it is important for this reference state to have observed transition for it to every other state
@@ -360,7 +363,7 @@ logLikeCalc = function(params, ## vector of parameter values.  Gamma is row majo
     Grad1Vec = Grad2Vec = rep(0,npar)
     Grad1Mat = Grad2Mat = matrix(0,N, npar)
 
-    subjectData = CreateSubjectData(id, yval,x,x.ppo, u, ZMat,YMat,cprob.m,prob.m,one.min.cprob.m,phi.k, g.phi.k,dphi.k.deta.k,dphi.k.deta.k1,dpi.k.deta.k,K,K1)
+    subjectData = CreateSubjectData(id, yval,x,x.ppo, u, ZMat,YMat, wt, cprob.m,prob.m,one.min.cprob.m,phi.k, g.phi.k,dphi.k.deta.k,dphi.k.deta.k1,dpi.k.deta.k,K,K1)
     blah        = lapply(subjectData, LogLikeiCalc, gamma.mtx=gamma.mtx, tmp1=tmp1, tmp2=tmp2, tmp3a=tmp3a, tmp4=tmp4, tmp.mat=tmp.mat, ref.muc=ref.muc,
                          K=K, K1=K1, n.ppo=n.ppo, ppo.k=ppo.k, npar=npar, alpha.len=alpha.len, beta.len=beta.len,
                          gamma.len=gamma.len, TransIndMtx=TransIndMtx)
@@ -398,6 +401,7 @@ LogLikeiCalc = function(subjectData, gamma.mtx, tmp1, tmp2, tmp3a, tmp4, tmp.mat
     mi               = subjectData[["mi"]]
     ZiMat            = subjectData[["ZiMat"]]
     YiMat            = subjectData[["YiMat"]]
+    wti              = subjectData[["wt"]]
     cprobi.m         = subjectData[["cprobi.m"]]
     probi.m          = subjectData[["probi.m"]]
     one.min.cprobi.m = subjectData[["one.min.cprobi.m"]]
@@ -572,14 +576,14 @@ LogLikeiCalc = function(subjectData, gamma.mtx, tmp1, tmp2, tmp3a, tmp4, tmp.mat
         }
     }
 
-    out = list(logLi1=logLi1,
-               logLi2=sum(logLij2),
-               Grad1iVec=Grad1iVec,
-               Grad2iVec=Grad2iVec)
+    out = list(logLi1=logLi1*wti,
+               logLi2=sum(logLij2)*wti,
+               Grad1iVec=Grad1iVec*wti,
+               Grad2iVec=Grad2iVec*wti)
     out
 }
 
-CalcVarCov = function(MOD, epsilon, yval, x, id, ProfileCol=NA, ref.muc=NA, TransIndMtx=NA, x.ppo=NULL, ppo.k=NULL, u=NULL){
+CalcVarCov = function(MOD, epsilon, yval, x, wt, id, ProfileCol=NA, ref.muc=NA, TransIndMtx=NA, x.ppo=NULL, ppo.k=NULL, u=NULL){
     npar        = length(MOD$estimate)
     eps.mtx     = diag(rep(epsilon, npar))
     grad.at.max = MOD$gradient
@@ -588,7 +592,10 @@ CalcVarCov = function(MOD, epsilon, yval, x, id, ProfileCol=NA, ref.muc=NA, Tran
 
     ## Observed Information
     for (j in 1:npar){
-        temp            = logLikeCalc(MOD$estimate+eps.mtx[j,], yval=yval, x=x, x.ppo=x.ppo, ppo.k=ppo.k, u=u, id=id, ProfileCol = ProfileCol, ref.muc=ref.muc, TransIndMtx=TransIndMtx, UseGrad=TRUE)
+        temp            = logLikeCalc(MOD$estimate+eps.mtx[j,], yval=yval, x=x, wt=wt,
+                                      x.ppo=x.ppo, ppo.k=ppo.k, u=u, id=id,
+                                      ProfileCol = ProfileCol, ref.muc=ref.muc,
+                                      TransIndMtx=TransIndMtx, UseGrad=TRUE)
         ObsInfo.tmp[j,] = (attr(temp,"gradient")-grad.at.max)/(epsilon)
     }
     for (m in 1:npar){ for (n in 1:npar){ ObsInfo[m,n] =  (ObsInfo.tmp[m,n]+ObsInfo.tmp[n,m])/2}}
@@ -602,7 +609,9 @@ CalcVarCov = function(MOD, epsilon, yval, x, id, ProfileCol=NA, ref.muc=NA, Tran
     }else{                     mod.cov = solve(ObsInfo)}
 
     ## Robust, sandwich covariance
-    cheese  = attr(logLikeCalc(params=MOD$estimate, yval=yval, x=x, x.ppo=x.ppo, ppo.k=ppo.k, u=u, id=id, ProfileCol=ProfileCol, ref.muc=ref.muc, TransIndMtx=TransIndMtx, CheeseCalc=TRUE), "cheese")
+    cheese  = attr(logLikeCalc(params=MOD$estimate, yval=yval, x=x, wt=wt,
+                               x.ppo=x.ppo, ppo.k=ppo.k, u=u, id=id, ProfileCol=ProfileCol,
+                               ref.muc=ref.muc, TransIndMtx=TransIndMtx, CheeseCalc=TRUE), "cheese")
     if (length(rmv.noInfo)>0){
         cheese  = cheese[-rmv.noInfo,-rmv.noInfo]
     }
