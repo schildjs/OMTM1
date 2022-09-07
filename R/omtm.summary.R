@@ -7,6 +7,9 @@ omtm1  <- function(params, yval, XMat, id, ppo.k=NULL, x.ppo=NULL, u=NULL,
                    stepmax = 0.5, UseGrad=TRUE, iterlim=250, check.analyticals = FALSE,
                    print.level=0, ProfileCol = NA){
 
+    # if weights is null assign a weight of 1
+    if(is.null(weight)){weight <- rep(1, length(yval))}
+
     # fit the model
     mod <- nlm(logLikeCalc, p = params, yval = yval,  x = XMat, wt = weight,
                id = id, UseGrad=UseGrad,
