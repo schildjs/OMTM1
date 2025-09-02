@@ -11,3 +11,4 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 LinkingTo: Rcpp
+Depends: Rcpp
