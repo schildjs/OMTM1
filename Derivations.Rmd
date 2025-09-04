@@ -21,21 +21,22 @@ output:
     #code_folding: hide
     #theme: cosmo
 ---
+::: {.hidden}
 \newcommand{\Yit}{Y_{it}}
-\newcommand{\Yit1}{Y_{it-1}}
+\newcommand{\yitONE}{Y_{it-1}}
 \newcommand{\Yitk}{Y_{it,k}}
 \newcommand{\YitK}{Y_{it,K}}
 \newcommand{\Yitl}{Y_{it,l}}
 \newcommand{\Yitd}{Y_{it,d}}
 \newcommand{\Yitb}{Y_{it,b}}
-\newcommand{\Yit1l}{Y_{it-1,l}}
-\newcommand{\Yi1k}{Y_{i1,k}}
+\newcommand{\yitONEl}{Y_{it-1,l}}
+\newcommand{\yiONEl}{Y_{i1,k}}
 \newcommand{\yitl}{y_{it,l}}
-\newcommand{\yit1l}{y_{it-1,l}}
+\newcommand{\yitONEl}{y_{it-1,l}}
 \newcommand{\Zitk}{Z_{it,k}}
-\newcommand{\Zi1k}{Z_{i1,k}}
-\newcommand{\Zitkp1}{Z_{it,k+1}}
-\newcommand{\Zi1kp1}{Z_{i1,k+1}}
+\newcommand{\ZiONEk}{Z_{i1,k}}
+\newcommand{\ZitkpONE}{Z_{it,k+1}}
+\newcommand{\ZiONEkpONE}{Z_{i1,k+1}}
 
 \newcommand{\Uit}{U_{it}}
 \newcommand{\uit}{u_{it}}
@@ -44,9 +45,9 @@ output:
 
 \newcommand{\mumit}[1]{\mu_{it,#1}^m}
 \newcommand{\mumit2}{\mu_{it,2}^m}
-\newcommand{\mumitK1}{\mu_{it,K-1}^m}
+\newcommand{\mumitKONE}{\mu_{it,K-1}^m}
 \newcommand{\mumitk}{\mu_{it,k}^m}
-\newcommand{\mumi1k}{\mu_{i1,k}^m}
+\newcommand{\mumiONEk}{\mu_{i1,k}^m}
 \newcommand{\mumit1g}{\mu_{it-1,g}^m}
 
 \newcommand{\mucitk}{\mu_{it,k}^c}
@@ -55,11 +56,11 @@ output:
 \newcommand{\mucitb}{\mu_{it,b}^c}
 
 \newcommand{\pimitk}{\pi_{it,k}^m}
-\newcommand{\pimitk1}{\pi_{it,k-1}^m}
+\newcommand{\pimitKONE}{\pi_{it,k-1}^m}
 
-\newcommand{\pimitkp1}{\pi_{it,k+1}^m}
-\newcommand{\pimi1k}{\pi_{i1,k}^m}
-\newcommand{\pimi1kp1}{\pi_{i1,k+1}^m}
+\newcommand{\pimitkpONE}{\pi_{it,k+1}^m}
+\newcommand{\pimiONEk}{\pi_{i1,k}^m}
+\newcommand{\pimiONEkpONE}{\pi_{i1,k+1}^m}
 
 \newcommand{\pimit1k}{\pi_{it-1,k}^m}
 \newcommand{\hitkl}{h_{it,kl}}
@@ -70,14 +71,14 @@ output:
 \newcommand{\hit}[2]{h_{it,#1 #2}}
 
 \newcommand{\etaitk}{\eta_{it,k}}
-\newcommand{\etai1k}{\eta_{i1,k}}
-\newcommand{\etai1kp1}{\eta_{i1,k+1}}
+\newcommand{\etaiONEk}{\eta_{i1,k}}
+\newcommand{\etaiONEkpONE}{\eta_{i1,k+1}}
 
 \newcommand{\Deltait}{\mathbf{\Delta}_{it}}
 \newcommand{\Deltaitk}{\Delta_{it,k}}
 \newcommand{\Deltaitl}{\Delta_{it,l}}
 \newcommand{\Deltaitj}{\Delta_{it,j}}
-\newcommand{\DeltaitK1}{\Delta_{it,K-1}}
+\newcommand{\DeltaitKONE}{\Delta_{it,K-1}}
 \newcommand{\Deltait1}{\Delta_{it,1}}
 \newcommand{\Deltait2}{\Delta_{it,2}}
 
@@ -92,8 +93,8 @@ output:
 \newcommand{\gammakg}{\gamma^{kg}}
 \newcommand{\gammadb}{\gamma^{db}}
 \newcommand{\gamma1g}{\gamma^{1g}}
-\newcommand{\gammaK1g}{\gamma^{(K-1)g}}
-\newcommand{\gammaK1K1}{\gamma^{(K-1)(K-1)}}
+\newcommand{\gammaKONEg}{\gamma^{(K-1)g}}
+\newcommand{\gammaKONEK1}{\gamma^{(K-1)(K-1)}}
 \newcommand{\gamma11}{\gamma^{11}}
 
 \newcommand{\gammakla}{\gamma^{kl(a)}}
@@ -103,19 +104,19 @@ output:
 \newcommand{\gammakga}{\gamma^{kg(a)}}
 \newcommand{\gammadba}{\gamma^{db(a)}}
 \newcommand{\gamma1ga}{\gamma^{1g(a)}}
-\newcommand{\gammaK1ga}{\gamma^{(K-1)g(a)}}
-\newcommand{\gammaK1K1a}{\gamma^{(K-1)(K-1)(a)}}
+\newcommand{\gammaKONEga}{\gamma^{(K-1)g(a)}}
+\newcommand{\gammaKONEK1a}{\gamma^{(K-1)(K-1)(a)}}
 \newcommand{\gamma11a}{\gamma^{11(a)}}
 \newcommand{\gamma1g1}{\gamma^{1g(1)}}
-\newcommand{\gammaK1g1}{\gamma^{(K-1)g(1)}}
+\newcommand{\gammaKONEg1}{\gamma^{(K-1)g(1)}}
 \newcommand{\gamma1gA}{\gamma^{1g(A)}}
-\newcommand{\gammaK1gA}{\gamma^{(K-1)g(A)}}
+\newcommand{\gammaKONEgA}{\gamma^{(K-1)g(A)}}
 
 
 \newcommand{\phiitk}{\phi_{it,k}}
-\newcommand{\phiitkp1}{\phi_{it,k+1}}
-\newcommand{\phii1k}{\phi_{i1,k}}
-\newcommand{\phii1kp1}{\phi_{i1,k+1}}
+\newcommand{\phiitkpONE}{\phi_{it,k+1}}
+\newcommand{\phiiONEk}{\phi_{i1,k}}
+\newcommand{\phiiONEkpONE}{\phi_{i1,k+1}}
 
 
 \newcommand{\bm}[1]{\boldsymbol{#1}}
@@ -168,7 +169,7 @@ output:
 \newcommand{\bSigma}{\mbox{\bm $\Sigma$}}
 \newcommand{\bphi}{\mbox{\bm $\phi$}}
 \newcommand{\bGamma}{\mbox{\bm $\Gamma$}}
-
+:::
 
 
 ```{r setup, include=FALSE}
@@ -201,13 +202,13 @@ $\mathbf{U}_i$ is the design matrix for the response dependence model and $\math
 
 Noting that conditioning on $\mathbf{X}_i$ is implicit, then
 
-$\pimitk = pr(\Yit \leq k)$ is the marginal cumulative probability that captures how $Y$ depends on $X$
+* $\pimitk = pr(\Yit \leq k)$ is the marginal cumulative probability that captures how $Y$ depends on $X$
 
-$\mumitk = pr(\Yit=k) = \pimitk - \pimitk1$ is the marginal probability of being in state $k$.
+* $\mumitk = pr(\Yit=k) = \pimitk - \pimitKONE$ is the marginal probability of being in state $k$.
 
-$\mucitk = pr(\Yit=k \mid \Yit1)$ is the conditional (on the lagged response) probability of being in state $k$.  It captures how $Y$s depend on each other.  Here we are assuming a first-order Markov model.
+* $\mucitk = pr(\Yit=k \mid \yitONE)$ is the conditional (on the lagged response) probability of being in state $k$.  It captures how $Y$s depend on each other.  Here we are assuming a first-order Markov model.
 
-$\hitkl = pr(\Yit=k \mid \Yit1=l)$ where conditioning on $\uit$ is implicit
+* $\hitkl = pr(\Yit=k \mid \yitONE=l)$ where conditioning on $\uit$ is implicit
 
 
 # The Marginalized Model
@@ -217,7 +218,7 @@ The marginalized transition model for ordinal response data is given by the foll
 $$
 \begin{aligned}
 logit(\pimitk) &= \etaitk = \alpha_k + \mathbf{X}_{it} \mathbf{\beta} \\ 
-log \left( \frac{\mucitk}{\mucitK} \right) &= \Deltaitk(\mathbf{X}_i) + \sum_{l=1}^{K-1} \uit \gammakl \yit1l
+log \left( \frac{\mucitk}{\mucitK} \right) &= \Deltaitk(\mathbf{X}_i) + \sum_{l=1}^{K-1} \uit \gammakl \yitONEl
 \end{aligned}
 $$
 
@@ -225,7 +226,7 @@ where the former is a cumulative probability, proportional odds model, and the l
 
 ## Calculate $\Deltaitk$
 
-Since the marginal mean model must equal the marginalized, conditional mean model (where we marginalize over the distribution of $\Yit1$), then
+Since the marginal mean model must equal the marginalized, conditional mean model (where we marginalize over the distribution of $\yitONE$), then
 
 $$ \mumitk = \sum_{g=1}^{K} \hitkg \cdot \mumit1g = \sum_{g=1}^{K} \frac{exp(\Deltaitk + \uit \gamma^{kg})}{1+\sum_{l=1}^{K-1}exp(\Deltaitl + \uit \gamma^{lg})} \cdot \mumit1g$$
 
@@ -246,10 +247,10 @@ $$
 
 # Notes about conditional mean model
 
-* $\hitkg = pr(\Yitk \mid \Yit1=g) = \frac{exp(\Deltaitk + \uit \gammakg)}{1+\sum_{l=1}^{K-1} exp(\Deltaitl + \uit \gammalg)}$
-* $\hitkK = pr(\Yitk \mid \Yit1=K)= \frac{exp(\Deltaitk)}{1+\sum_{l=1}^{K-1} exp(\Deltaitl)}$ because state $K$ is the reference state for lagged values (i.e. $\gammakK=0$). So $\gamma$ does not appear in the $K^{th}$ column of the $\mathbf{h}_{it}$ matrix.
-* $\hitKg =  1-\sum_{k=1}^{K-1} pr(\Yitk \mid \Yit1=g) = 1-\sum_{k=1}^{K-1} \hitkg = \frac{1}{1+\sum_{l=1}^{K-1} exp(\Deltaitl+ \uit \gammalg)}$ because state $K$ is the reference state for the outcome
-* In the $\mathbf{h}_{it}$ matrix ($K \times K$), rows correspond to $\Yit$ and columns correspond to $\Yit1$, so that the $(k,g)^{th}$ element is $\hitkg = pr(\Yitk \mid \Yit1=g)$.
+* $\hitkg = pr(\Yitk \mid \yitONE=g) = \frac{exp(\Deltaitk + \uit \gammakg)}{1+\sum_{l=1}^{K-1} exp(\Deltaitl + \uit \gammalg)}$
+* $\hitkK = pr(\Yitk \mid \yitONE=K)= \frac{exp(\Deltaitk)}{1+\sum_{l=1}^{K-1} exp(\Deltaitl)}$ because state $K$ is the reference state for lagged values (i.e. $\gammakK=0$). So $\gamma$ does not appear in the $K^{th}$ column of the $\mathbf{h}_{it}$ matrix.
+* $\hitKg =  1-\sum_{k=1}^{K-1} pr(\Yitk \mid \yitONE=g) = 1-\sum_{k=1}^{K-1} \hitkg = \frac{1}{1+\sum_{l=1}^{K-1} exp(\Deltaitl+ \uit \gammalg)}$ because state $K$ is the reference state for the outcome
+* In the $\mathbf{h}_{it}$ matrix ($K \times K$), rows correspond to $\Yit$ and columns correspond to $\yitONE$, so that the $(k,g)^{th}$ element is $\hitkg = pr(\Yitk \mid \yitONE=g)$.
 * $\Deltaitk$ is the fixed intercept for a row in $\mathbf{h}_{it}$
 
 $$
@@ -264,10 +265,10 @@ $$
         \right\}
 $$
 
-* $log \left( \frac{ pr(\Yit=k \mid \Yit1=g)}{pr(\Yit=K \mid \Yit1=g)} \right) = \Deltaitk + \uit \gammakg$ and $log \left( \frac{ pr(\Yit=k \mid \Yit1=K)}{pr(\Yit=K \mid \Yit1=K)} \right) = \Deltaitk$, so
+* $log \left( \frac{ pr(\Yit=k \mid \yitONE=g)}{pr(\Yit=K \mid \yitONE=g)} \right) = \Deltaitk + \uit \gammakg$ and $log \left( \frac{ pr(\Yit=k \mid \yitONE=K)}{pr(\Yit=K \mid \yitONE=K)} \right) = \Deltaitk$, so
 
 
-$$\gammakg=  log \left( \frac{ pr(\Yit=k \mid \Yit1=g)/pr(\Yit=K \mid \Yit1=g)  }{ pr(\Yit=k \mid \Yit1=K)/pr(\Yit=K \mid \Yit1=K) } \right)  = log \left( \frac{ \hit{k}{g} / \hit{K}{g}  }{  \hit{k}{K} / \hit{K}{K} } \right)$$
+$$\gammakg=  log \left( \frac{ pr(\Yit=k \mid \yitONE=g)/pr(\Yit=K \mid \yitONE=g)  }{ pr(\Yit=k \mid \yitONE=K)/pr(\Yit=K \mid \yitONE=K) } \right)  = log \left( \frac{ \hit{k}{g} / \hit{K}{g}  }{  \hit{k}{K} / \hit{K}{K} } \right)$$
 
 is not that easy (for me) to interpret by itself bc we need to know values of all elements of $\mathbf{\Delta}_{it}$.
 
@@ -285,7 +286,7 @@ The log-likelihood contribution by subject $i$ can be written,
 $$
 \begin{aligned}
 l_i(\mathbf{\theta}) =&  l_i^{(1)}(\mathbf{\beta},\mathbf{\alpha}) + l_i^{(2)}(\mathbf{\theta}) \\
-=& \sum_{k=1}^{K} \Yi1k log (\mumi1k) + \sum_{t=2}^{T_i} \sum_{k=1}^{K} \Yitk log (\mucitk)
+=& \sum_{k=1}^{K} \yiONEl log (\mumiONEk) + \sum_{t=2}^{T_i} \sum_{k=1}^{K} \Yitk log (\mucitk)
 \end{aligned}
 $$
 
@@ -293,21 +294,21 @@ Relying on Lee and Daniels (2007) and McCullagh (1980), and for computational ef
 
 $$
 \begin{aligned}
-l_i^{(1)}(\mathbf{\beta},\mathbf{\alpha})= \sum_{k=1}^{K-1} [\Zi1k \phii1k - \Zi1kp1 g(\phii1k)] 
+l_i^{(1)}(\mathbf{\beta},\mathbf{\alpha})= \sum_{k=1}^{K-1} [\ZiONEk \phiiONEk - \ZiONEkpONE g(\phiiONEk)] 
 \end{aligned}
 $$
 
 where
 
-* $\phiitk = log \left( \frac{\pimitk}{\pimitkp1-\pimitk} \right)$
-* $g(\phiitk) = log(1+exp(\phiitk)) = log \left( \frac{\pimitkp1}{\pimitkp1-\pimitk} \right)$
+* $\phiitk = log \left( \frac{\pimitk}{\pimitkpONE-\pimitk} \right)$
+* $g(\phiitk) = log(1+exp(\phiitk)) = log \left( \frac{\pimitkpONE}{\pimitkpONE-\pimitk} \right)$
 
 
 We can write $l_i^{(2)}(\mathbf{\theta})$ in exponential family form as follows
 
 $$
 \begin{aligned}
-l_i^{(2)}(\mathbf{\theta})= \sum_{t=2}^{T_i} \left[ \sum_{k=1}^{K-1} \Yitk (\Deltaitk + \sum_{l=1}^{K-1} \uit \gammakl \Yit1l) - log(1+\sum_{k=1}^{K-1} exp(\Deltaitk + \sum_{l=1}^{K-1} \uit \gammakl \Yit1l)) \right] 
+l_i^{(2)}(\mathbf{\theta})= \sum_{t=2}^{T_i} \left[ \sum_{k=1}^{K-1} \Yitk (\Deltaitk + \sum_{l=1}^{K-1} \uit \gammakl \yitONEl) - log(1+\sum_{k=1}^{K-1} exp(\Deltaitk + \sum_{l=1}^{K-1} \uit \gammakl \yitONEl)) \right] 
 \end{aligned}
 $$
 
@@ -315,39 +316,39 @@ $$
 
 $$
 \begin{aligned}
-\frac{\partial l_i^{(1)}(\mathbf{\beta},\mathbf{\alpha})}{\partial \theta_1}= \sum_{k=1}^{K-1} \left[ \Zi1k \frac{\partial \phii1k}{\partial \theta_1} - \Zi1kp1 \frac{\partial g(\phii1k)}{\partial \theta_1} \right]  
+\frac{\partial l_i^{(1)}(\mathbf{\beta},\mathbf{\alpha})}{\partial \theta_1}= \sum_{k=1}^{K-1} \left[ \ZiONEk \frac{\partial \phiiONEk}{\partial \theta_1} - \ZiONEkpONE \frac{\partial g(\phiiONEk)}{\partial \theta_1} \right]  
 \end{aligned}
 $$
 
 where we can show that (see handwritten notes)
 
-* $\frac{\partial \phii1k}{\partial \theta_1}=exp(g(\phii1k)) \cdot \left[(1-\pimi1k) \frac{\partial \etai1k}{\partial \theta_1} - (1-\pimi1kp1) \frac{\partial \etai1kp1}{\partial \theta_1}   \right]$
-* $\frac{\partial g(\phii1k)}{\partial \theta_1}=exp(\phii1k) \cdot \left[(1-\pimi1k) \frac{\partial \etai1k}{\partial \theta_1} - (1-\pimi1kp1) \frac{\partial \etai1kp1}{\partial \theta_1}   \right] = \frac{exp(\phii1k)}{exp(g(\phii1k))} \cdot \frac{\partial \phii1k}{\partial \theta_1} = \frac{\pimi1k}{\pimi1kp1} \cdot \frac{\partial \phii1k}{\partial \theta_1}$
+* $\frac{\partial \phiiONEk}{\partial \theta_1}=exp(g(\phiiONEk)) \cdot \left[(1-\pimiONEk) \frac{\partial \etaiONEk}{\partial \theta_1} - (1-\pimiONEkpONE) \frac{\partial \etaiONEkpONE}{\partial \theta_1}   \right]$
+* $\frac{\partial g(\phiiONEk)}{\partial \theta_1}=exp(\phiiONEk) \cdot \left[(1-\pimiONEk) \frac{\partial \etaiONEk}{\partial \theta_1} - (1-\pimiONEkpONE) \frac{\partial \etaiONEkpONE}{\partial \theta_1}   \right] = \frac{exp(\phiiONEk)}{exp(g(\phiiONEk))} \cdot \frac{\partial \phiiONEk}{\partial \theta_1} = \frac{\pimiONEk}{\pimiONEkpONE} \cdot \frac{\partial \phiiONEk}{\partial \theta_1}$
 
 so that 
 
 $$
 \begin{aligned}
-\frac{\partial l_i^{(1)}(\mathbf{\beta},\mathbf{\alpha})}{\partial \theta_1}= \sum_{k=1}^{K-1} \left[ \Zi1k  - \Zi1kp1 \frac{\pimi1k}{\pimi1kp1} \right]  \frac{\partial \phii1k}{\partial \theta_1}
+\frac{\partial l_i^{(1)}(\mathbf{\beta},\mathbf{\alpha})}{\partial \theta_1}= \sum_{k=1}^{K-1} \left[ \ZiONEk  - \ZiONEkpONE \frac{\pimiONEk}{\pimiONEkpONE} \right]  \frac{\partial \phiiONEk}{\partial \theta_1}
 \end{aligned}
 $$
 
 where 
 
-* $\frac{\pimi1k}{\pimi1kp1}=\frac{exp(\phii1k)}{1+exp(\phii1k)}$
-* $\frac{\partial \phii1k}{\partial \theta_1} = \frac{\partial \phii1k}{\partial \pimi1k} \cdot \frac{\partial \pimi1k}{\partial \etai1k} \cdot \frac{\partial \etai1k}{\partial \theta_1} + \frac{\partial \phii1k}{\partial \pimi1kp1} \cdot \frac{\partial \pimi1kp1}{\partial \etai1kp1} \cdot \frac{\partial \etai1kp1}{\partial \theta_1} =  \frac{\partial \phii1k}{\partial \etai1k} \cdot \frac{\partial \etai1k}{\partial \theta_1} + \frac{\partial \phii1k}{\partial \etai1kp1} \cdot \frac{\partial \etai1kp1}{\partial \theta_1}$.  This is from LD2007 and I checked that this is equal to what I got.
+* $\frac{\pimiONEk}{\pimiONEkpONE}=\frac{exp(\phiiONEk)}{1+exp(\phiiONEk)}$
+* $\frac{\partial \phiiONEk}{\partial \theta_1} = \frac{\partial \phiiONEk}{\partial \pimiONEk} \cdot \frac{\partial \pimiONEk}{\partial \etaiONEk} \cdot \frac{\partial \etaiONEk}{\partial \theta_1} + \frac{\partial \phiiONEk}{\partial \pimiONEkpONE} \cdot \frac{\partial \pimiONEkpONE}{\partial \etaiONEkpONE} \cdot \frac{\partial \etaiONEkpONE}{\partial \theta_1} =  \frac{\partial \phiiONEk}{\partial \etaiONEk} \cdot \frac{\partial \etaiONEk}{\partial \theta_1} + \frac{\partial \phiiONEk}{\partial \etaiONEkpONE} \cdot \frac{\partial \etaiONEkpONE}{\partial \theta_1}$.  This is from LD2007 and I checked that this is equal to what I got.
 
 
 <!-- $$ -->
 <!-- \begin{aligned} -->
-<!-- # \frac{\partial l_i^{(2)}(\mathbf{\theta})}{\partial \theta_1}= & \sum_{t=2}^{T_i} \left[ \sum_{k=1}^{K-1} \Yitk \left(\frac{\partial \Deltaitk}{\partial \theta_1} + \sum_{l=1}^{K-1} \frac{\partial \gammakl}{\partial \theta_1} \Yit1l \right)  - \frac{exp(\Deltaitk + \sum_{l=1}^{K-1} \gammakl \Yit1l)}{(1+\sum_{k=1}^{K-1} exp(\Deltaitk + \sum_{l=1}^{K-1} \gammakl \Yit1l))} \left(\frac{\partial \Deltaitk}{\partial \theta_1} + \sum_{l=1}^{K-1} \frac{\partial \gammakl}{\partial \theta_1} \Yit1l \right) \right] \\  -->
+<!-- # \frac{\partial l_i^{(2)}(\mathbf{\theta})}{\partial \theta_1}= & \sum_{t=2}^{T_i} \left[ \sum_{k=1}^{K-1} \Yitk \left(\frac{\partial \Deltaitk}{\partial \theta_1} + \sum_{l=1}^{K-1} \frac{\partial \gammakl}{\partial \theta_1} \yitONEl \right)  - \frac{exp(\Deltaitk + \sum_{l=1}^{K-1} \gammakl \yitONEl)}{(1+\sum_{k=1}^{K-1} exp(\Deltaitk + \sum_{l=1}^{K-1} \gammakl \yitONEl))} \left(\frac{\partial \Deltaitk}{\partial \theta_1} + \sum_{l=1}^{K-1} \frac{\partial \gammakl}{\partial \theta_1} \yitONEl \right) \right] \\  -->
 <!-- \end{aligned} -->
 <!-- $$ -->
 
 Next, 
 $$
 \begin{aligned}
-\frac{\partial l_i^{(2)}(\mathbf{\theta})}{\partial \theta_1} =& \sum_{t=2}^{T_i} \left[ \sum_{k=1}^{K-1} (\Yitk - \mucitk) \left(\frac{\partial \Deltaitk}{\partial \theta_1} + \sum_{l=1}^{K-1} \uit \frac{\partial \gammakl}{\partial \theta_1} \Yit1l \right)  \right]
+\frac{\partial l_i^{(2)}(\mathbf{\theta})}{\partial \theta_1} =& \sum_{t=2}^{T_i} \left[ \sum_{k=1}^{K-1} (\Yitk - \mucitk) \left(\frac{\partial \Deltaitk}{\partial \theta_1} + \sum_{l=1}^{K-1} \uit \frac{\partial \gammakl}{\partial \theta_1} \yitONEl \right)  \right]
 \end{aligned}
 $$
 
@@ -386,7 +387,7 @@ $$
 \frac{\partial \hitkg}{\partial \theta_1}\mumit1g = & \frac{\partial \mumitk}{\partial \theta_1} - \hitkg\frac{\partial \mumit1g}{\partial \theta_1} \\
 \end{aligned}
 $$
-Since $\hitkg=h(\Deltait1, \dots \DeltaitK1, \gamma1g1, \dots \gammaK1g1, \dots \gamma1gA, \dots \gammaK1gA)$
+Since $\hitkg=h(\Deltait1, \dots \DeltaitKONE, \gamma1g1, \dots \gammaKONEg1, \dots \gamma1gA, \dots \gammaKONEgA)$
 
 $$ 
 \begin{aligned}
@@ -541,7 +542,7 @@ $$
 \right]
 $$
 and the column vectors elements multiply the entire row of the matrix to the right.  Note also that this is the precise form for $\frac{\partial \bm{\mu}_{it-1}^m}{\partial \bm{\theta}}$ which is pre-multiplied by the row vector $\bm{h}_{it,k*}$
-<!-- For each element of $\theta_1$, there are $K-1$ unknown values $\left(\frac{\partial \Deltait1}{\partial \theta_1}, \dots \frac{\partial \DeltaitK1}{\partial \theta_1}  \right)$ and there are $K-1$ equations.  So, we need to solve the system of equations.  With $npar$ parameters, we have $npar \dot (K-1)$ values of $\frac{\partial \Deltait}{\partial \bm{\theta}}$ for all $i$ and all $t$.  \\  -->
+<!-- For each element of $\theta_1$, there are $K-1$ unknown values $\left(\frac{\partial \Deltait1}{\partial \theta_1}, \dots \frac{\partial \DeltaitKONE}{\partial \theta_1}  \right)$ and there are $K-1$ equations.  So, we need to solve the system of equations.  With $npar$ parameters, we have $npar \dot (K-1)$ values of $\frac{\partial \Deltait}{\partial \bm{\theta}}$ for all $i$ and all $t$.  \\  -->
 
 <!-- Across all parameters, we solve $\mathbf{P}\mathbf{Q}=\mathbf{R}$ for $\mathbf{Q}$ where $\mathbf{P} \sim (K-1)\times(K-1)$, $\mathbf{Q} \sim (K-1) \times npar$, and $\mathbf{R}\sim (K-1) \times npar = -ii+iii-iv$.  -->
 
