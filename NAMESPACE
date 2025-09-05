@@ -1,3 +1,4 @@
 useDynLib(OMTM1)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
+importFrom("stats", "nlm", "pnorm", "printCoefmat", "rmultinom")
