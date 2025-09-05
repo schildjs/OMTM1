@@ -18,7 +18,6 @@ NumericVector Delta_calc_cpp(
   int    km1=k-1;      // K - 1
   int    i,j,l;        // i denotes row, j denotes column,
   int    itr;          // Track iterations
-  size_t len_trans = 1; // New argument to BLAS
   double temp;
   double temp2;
   double maxslope;     // Finds maximum slope
@@ -77,7 +76,7 @@ NumericVector Delta_calc_cpp(
     for(i=0; i<km1; ++i) fDelta[i] = -mm[i]; // BLAS will modify this vector
     i    = 1;   // Each entry in vector is one apart, BLAS allows arbitrary spacing
     temp = 1.0; // Operations are scaled by 1.0
-    dgemv_("N", &km1, &k, &temp, &hmat[0], &km1, &mmlag[0], &i, &temp, &fDelta[0], &i, len_trans);
+    dgemv_("N", &km1, &k, &temp, &hmat[0], &km1, &mmlag[0], &i, &temp, &fDelta[0], &i, 1);
     // Ref: http://www.netlib.org/lapack/explore-html/d7/d15/group__double__blas__level2_gadd421a107a488d524859b4a64c1901a9.html#gadd421a107a488d524859b4a64c1901a9
 
     // df.dDelta   <- matrix(0, K1, K1)
@@ -122,10 +121,10 @@ NumericVector Delta_calc_cpp(
     //del <- solve(df.dDelta) %*% fDelta
     // Solve inverse of real symmetric indefinite matrix in packed storage
     // https://www.math.utah.edu/software/lapack/lapack-d/dsptrf.html
-    dsptrf_("U", &km1, &dfdDelta[0], &ipiv[0], &i, len_trans);
+    dsptrf_("U", &km1, &dfdDelta[0], &ipiv[0], &i, 1);
     if(i != 0) ::Rf_error("Bunch-Kaufman factorization failed: info %d", i);
     // https://www.math.utah.edu/software/lapack/lapack-d/dsptri.html
-    dsptri_("U", &km1, &dfdDelta[0], &ipiv[0], &work[0], &i, len_trans);
+    dsptri_("U", &km1, &dfdDelta[0], &ipiv[0], &work[0], &i, 1);
     if(i != 0) ::Rf_error("Inversion failed, DSPTRI Info %d", i);
 
     temp=1.0;  // 1.0 * fDelta
@@ -134,7 +133,7 @@ NumericVector Delta_calc_cpp(
     // This is the  "%*% fDelta" piece with a triangular packed matrix
     // Result is left in del
     //http://www.netlib.org/lapack/explore-html/d7/d15/group__double__blas__level2_gab746575c4f7dd4eec72e8110d42cefe9.html#gab746575c4f7dd4eec72e8110d42cefe9
-    dspmv_("U", &km1, &temp, &dfdDelta[0], &fDelta[0], &i, &temp2, &del[0], &i, len_trans);
+    dspmv_("U", &km1, &temp, &dfdDelta[0], &fDelta[0], &i, &temp2, &del[0], &i, 1);
 
     // Modify Deltavec elementwise and find maximum absolute slope.
     maxslope = 0.0;
